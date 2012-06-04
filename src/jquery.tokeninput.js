@@ -744,25 +744,44 @@ $.TokenList = function (input, url_or_data, settings) {
                 .hide();
 
             $.each(results, function(index, value) {
-                var this_li = settings.resultsFormatter(value);
-
-                this_li = find_value_and_highlight_term(this_li ,value[settings.propertyToSearch], query);
-
-                this_li = $(this_li).appendTo(dropdown_ul);
-
-                if(index % 2) {
-                    this_li.addClass(settings.classes.dropdownItem);
-                } else {
-                    this_li.addClass(settings.classes.dropdownItem2);
+                
+                var skip = false;
+                
+                if(settings.preventDuplicates)
+                {
+                    token_list.children().each(function () {
+                        var existing_data = $.data($(this).get(0), "tokeninput");
+                        if(existing_data && existing_data.id === value.id) {
+                            skip = true
+                        } 
+                    });
                 }
-
-                if(index === 0) {
-                    select_dropdown_item(this_li);
+                
+                if(!skip)
+                {
+                    var this_li = settings.resultsFormatter(value);
+                            
+                    this_li = find_value_and_highlight_term(this_li ,value[settings.propertyToSearch], query);            
+                    
+                    this_li = $(this_li).appendTo(dropdown_ul);
+                    
+                    if(index % 2) {
+                        this_li.addClass(settings.classes.dropdownItem);
+                    } else {
+                        this_li.addClass(settings.classes.dropdownItem2);
+                    }
+    
+                    if(dropdown_ul.children().length == 1) {
+                        select_dropdown_item(this_li);
+                    }
+    
+                    $.data(this_li.get(0), "tokeninput", value);
                 }
-
-                $.data(this_li.get(0), "tokeninput", value);
             });
 
+            if(dropdown_ul.children().length == 0)
+                dropdown.html("<p>"+settings.noResultsText+"</p>");
+                
             show_dropdown();
 
             if(settings.animateDropdown) {
