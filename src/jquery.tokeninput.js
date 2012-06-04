@@ -192,6 +192,8 @@ $.TokenList = function (input, url_or_data, settings) {
     var timeout;
     var input_val;
 
+    var prevent_hide_dropdown = false;
+
     // Create a new text input an attach keyup events
     var input_box = $("<input type=\"text\"  autocomplete=\"off\">")
         .css({
@@ -208,9 +210,13 @@ $.TokenList = function (input, url_or_data, settings) {
             token_list.addClass(settings.classes.focused);
         })
         .blur(function () {
-            hide_dropdown();
-            $(this).val("");
-            token_list.removeClass(settings.classes.focused);
+            if(!prevent_hide_dropdown)
+            {
+                hide_dropdown();
+                $(this).val("");
+                token_list.removeClass(settings.classes.focused);
+            }
+            prevent_hide_dropdown = false;
         })
         .bind("keyup keydown blur update", resize_input)
         .keydown(function (event) {
@@ -357,7 +363,12 @@ $.TokenList = function (input, url_or_data, settings) {
     var dropdown = $("<div>")
         .addClass(settings.classes.dropdown)
         .appendTo("body")
-        .hide();
+        .hide()
+        .mousedown(function(){
+            prevent_hide_dropdown = true;
+            focus_with_timeout(input_box);
+            input_box.val("");
+        });
 
     // Magic element to help us resize the text input
     var input_resizer = $("<tester/>")
