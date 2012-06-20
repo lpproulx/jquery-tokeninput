@@ -126,6 +126,10 @@ var methods = {
     toggleDisabled: function(disable) {
         this.data("tokenInputObject").toggleDisabled(disable);
         return this;
+    },
+    destroy: function() {
+        this.data("tokenInputObject").destroy();
+        return this;        
     }
 }
 
@@ -450,6 +454,12 @@ $.TokenList = function (input, url_or_data, settings) {
 
     this.toggleDisabled = function(disable) {
         toggleDisabled(disable);
+    }
+
+    this.destroy = function() {
+        token_list.remove();
+        dropdown.remove();
+        hidden_input.removeData("tokenInputObject");
     }
 
     //
